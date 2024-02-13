@@ -3,13 +3,13 @@
 // https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-classroom/v1.1/14-Interactive-Web-Visualizations/02-Homework/samples.json.
 // ------------------------------------------------------------------------------------------------------------------------------------
 
-const url = "https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-classroom/v1.1/14-Interactive-Web-Visualizations/02-Homework/samples.json";
-
 //\\//\\ psueudocode comments from Patricia...
 //\\//\\ initializing function first
 //\\//\\ grab dropdown in init and assign to variable
 //\\//\\ use dropdown value and assign to variable the first time you pull it
 //\\//\\ use promise to grab samples names
+
+const url = "https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-classroom/v1.1/14-Interactive-Web-Visualizations/02-Homework/samples.json";
 
 // Promise Pending
 const dataPromise = d3.json(url);
@@ -19,19 +19,18 @@ console.log("Data Promise: ", dataPromise);
 // Fetch the JSON data, console log it, define variables from it
 d3.json(url).then(function(data) {
     console.log(data);
-    
-    // values for the bar chart
-    let sample_values = data.map(function() {
-        //...
-    });
-
-    // labels for the bar chart
-    let otu_ids = Object.values(data.names);
-
-    // hovertext for the chart
-    let otu_labels = //...
-
 });
+
+// values for the bar chart
+let sample_values = data.map(function() {
+    //...
+});
+
+// labels for the bar chart
+let otu_ids = Object.values(data.names);
+
+// hovertext for the chart
+let otu_labels = //...
 
 // ------------------------------------------------------------------------------------------------------------------------------------
 // Create a horizontal bar chart with a dropdown menu to display the top 10 OTUs found in that individual.
