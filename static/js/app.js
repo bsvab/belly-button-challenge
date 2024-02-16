@@ -3,13 +3,6 @@
 // https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-classroom/v1.1/14-Interactive-Web-Visualizations/02-Homework/samples.json.
 // ------------------------------------------------------------------------------------------------------------------------------------
 
-//\\//\\ psueudocode comments from Patricia...
-//\\//\\ initializing function first
-//\\//\\ grab dropdown in init and assign to variable
-//\\//\\ use dropdown value and assign to variable the first time you pull it
-//\\//\\ use promise to grab samples names
-
-
 // Promise Pending
 // const dataPromise = d3.json(url);
 // console.log("Data Promise: ", dataPromise);
@@ -31,15 +24,17 @@ function init() {
     let first_sample = data.names[0];
     console.log(first_sample);
     
-    // define sample data so it can be passed into all generating formulas
-    let sample_data = data.sample_data;
+    // define sample data and metadata so they can be passed into plot generating formulas
+    let sample_data = data.samples;
     console.log(sample_data);
+    let metadata = data.metadata;
+    console.log(metadata)
 
     // generate all initial plots
     generateBarChart(first_sample, sample_data);
-    generateMetadata(first_sample, sample_data);
+    // generateMetadata(first_sample, metadata);
     generateBubbleChart(first_sample, sample_data);
-    generateGaugeChart(first_sample, sample_data);
+    // generateGaugeChart(first_sample, sample_data);
   })
   .catch(error => {
     console.error('Error fetching data:', error);
@@ -49,6 +44,25 @@ function init() {
 
 // call the initialize function
 init();
+
+// create event listener to render any updates based on drodown menu selection
+function updateAllVisuals(sample_data) {
+  
+  // select the dropdown menu
+  let dropdown_list = d3.select("#selDataset");
+
+  // set event listener for dropdown menu change == if change occurs, update all charts
+  dropdown_list.on("change", function() {
+      let selection = this.value;
+      generateBarChart(selection, sample_data);
+      // generateMetadata(selection, sample_data);
+      generateBubbleChart(selection, sample_data);
+      // generateGaugeChart(selection, sample_data);
+  });
+};
+
+// call the update function
+updateAllVisuals();
 
 // get sample names and populate the dropdown list
 function populateDropdownMenu(names) {
@@ -61,15 +75,7 @@ function populateDropdownMenu(names) {
           .text(id)
           .property("value", id);
   });
-
-  // // set event listener for dropdown menu change == if change occurs, update all charts
-  // dropdown_list.on("change", function() {
-  //     let selection = this.value;
-  //     generateBarChart(selection, sample_data);
-  //     generateMetadata(selection, sample_data);
-  //     generateBubbleChart(selection, sample_data);
-  //     generateGaugeChart(selection, sample_data);
-  // });
+  
 };
 
 // ------------------------------------------------------------------------------------------------------------------------------------
@@ -79,7 +85,7 @@ function populateDropdownMenu(names) {
 function generateBarChart(selection, sample_data){
   
   // filter data per dropdown selection
-  let selection_data = sample_data.find(result => result.id == selection);
+  let selection_data = sample_data.filter(result => result.id == selection);
 
   // get first index from array
   let id_data = selection_data[0];
@@ -163,7 +169,44 @@ function generateBarChart(selection, sample_data){
 // Create a bubble chart that displays each sample.
 // ------------------------------------------------------------------------------------------------------------------------------------
 
+function generateBubbleChart(selection, sample_data){
+  
+  // filter data per dropdown selection
+  let selection_data = sample_data.filter(result => result.id == selection);
 
+  // get first index from array
+  let id_data = selection_data[0];
+
+  // values, labels, and hovertext for the bar chart
+  let sample_values = id_data.sample_values;
+  let otu_ids = id_data.otu_ids;
+  let otu_labels = id_data.otu_labels;
+  console.log(sample_values, otu_ids, otu_labels);
+
+  // define trace for the bubble chart
+  let trace = {
+      x: otu_ids,
+      y: sample_values,
+      text: otu_labels,
+      mode: "markers",
+      marker: {
+          size: sample_values,
+          color: otu_ids,
+          colorscale: "Earth"
+      }
+  };
+
+  // define the layout
+  let layout = {
+    title: "Bacteria Per Sample",
+    hovermode: "closest",
+    xaxis: {title: "OTU ID"},
+  };
+
+  // use Plotly to plot the bar chart
+  Plotly.newPlot("bubble", [trace], layout)
+
+};
 
 // ------------------------------------------------------------------------------------------------------------------------------------
 // Display the sample metadata, i.e., an individual's demographic information.
