@@ -3,11 +3,6 @@
 // https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-classroom/v1.1/14-Interactive-Web-Visualizations/02-Homework/samples.json.
 // ------------------------------------------------------------------------------------------------------------------------------------
 
-// Promise Pending
-// const dataPromise = d3.json(url);
-// console.log("Data Promise: ", dataPromise);
-//\\//\\ NEED A BETTER UNDERSTANDING OF WHAT ^ABOVE LINE^ DOES AND WHY TURNING AROUND AND DOING .JSON IN THE VERY NEXT LINE WITH THE .THEN DOESN'T NEGATE WHATEVER THIS IS DOING
-
 const url = "https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-classroom/v1.1/14-Interactive-Web-Visualizations/02-Homework/samples.json";
 
 // initialize the dashboard at start up 
@@ -32,9 +27,20 @@ function init() {
 
     // generate all initial plots
     generateBarChart(first_sample, sample_data);
-    // generateMetadata(first_sample, metadata);
+    generateMetadata(first_sample, metadata);
     generateBubbleChart(first_sample, sample_data);
-    // generateGaugeChart(first_sample, sample_data);
+    generateGaugeChart(first_sample, metadata);
+
+    // set event listener for dropdown menu change = if change occurs, update charts
+    let dropdown_list = d3.select("#selDataset");  
+    dropdown_list.on("change", function() {
+      let selection = this.value;
+      generateBarChart(selection, sample_data);
+      generateMetadata(selection, metadata);
+      generateBubbleChart(selection, sample_data);
+      generateGaugeChart(selection, metadata);
+    });
+
   })
   .catch(error => {
     console.error('Error fetching data:', error);
@@ -44,25 +50,6 @@ function init() {
 
 // call the initialize function
 init();
-
-// create event listener to render any updates based on drodown menu selection
-function updateAllVisuals(sample_data) {
-  
-  // select the dropdown menu
-  let dropdown_list = d3.select("#selDataset");
-
-  // set event listener for dropdown menu change == if change occurs, update all charts
-  dropdown_list.on("change", function() {
-      let selection = this.value;
-      generateBarChart(selection, sample_data);
-      // generateMetadata(selection, sample_data);
-      generateBubbleChart(selection, sample_data);
-      // generateGaugeChart(selection, sample_data);
-  });
-};
-
-// call the update function
-updateAllVisuals();
 
 // get sample names and populate the dropdown list
 function populateDropdownMenu(names) {
@@ -120,51 +107,6 @@ function generateBarChart(selection, sample_data){
 
 };
 
-// ++++++++++++++++++++++++++++++++
-// changing gears......
-// ++++++++++++++++++++++++++++++++
-
-// function generateBoxPlot() {
-//     data = [{
-//         x: [sample_values],
-//         y: [otu_ids],
-//         type: "horizontal bar"
-//     }];
-  
-//     Plotly.newPlot("box", data);
-//   }
-  
-//   // Call updatePlotly() when a change takes place to the dropdown menu
-//   d3.selectAll("#selDataset").on("change", updatePlotly);
-  
-//   // This function is called when a dropdown menu item is selected
-//   function updatePlotly() {
-//     // Use D3 to select the dropdown menu
-//     let dropdownMenu = d3.select("#selDataset");
-//     // Assign the value of the dropdown menu option to a variable
-//     let dataset = dropdownMenu.property("value");
-  
-//     // Initialize x and y arrays
-//     let x = [];
-//     let y = [];
-  
-//     if (dataset === 'dataset1') { // change for correct variables/etc
-//       x = [1, 2, 3, 4, 5]; // change for correct data
-//       y = [1, 2, 4, 8, 16]; // change for correct data
-//     }
-  
-//     else if (dataset === 'dataset2') { // change for correct variables/etc
-//       x = [10, 20, 30, 40, 50]; // change for correct data
-//       y = [1, 10, 100, 1000, 10000]; // change for correct data
-//     }
-  
-//     Plotly.restyle("plot", "x", [x]);
-//     Plotly.restyle("plot", "y", [y]);
-//   }
-  
-//   generateBoxPlot();
-
-
 // ------------------------------------------------------------------------------------------------------------------------------------
 // Create a bubble chart that displays each sample.
 // ------------------------------------------------------------------------------------------------------------------------------------
@@ -209,41 +151,86 @@ function generateBubbleChart(selection, sample_data){
 };
 
 // ------------------------------------------------------------------------------------------------------------------------------------
-// Display the sample metadata, i.e., an individual's demographic information.
-// ------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------------------------------------------------------------
+// Display the sample metadata, i.e., an individual's demographic information. 
 // Display each key-value pair from the metadata JSON object somewhere on the page.
 // ------------------------------------------------------------------------------------------------------------------------------------
 
+function generateMetadata(selection, metadata) {
 
+  // filter data per dropdown selection
+  let selection_data = metadata.filter(result => result.id == selection);
+  console.log(selection_data)
+
+  // get the first index from the array
+  let values = selection_data[0];
+
+  // clear out metadata if previously populated
+  d3.select("#sample-metadata").html("");
+
+  // add each key/value pair in the metadata to the panel
+  Object.entries(values).forEach(([key,value]) => {
+      console.log(key,value);
+      d3.select("#sample-metadata").append("h5").text(`${key}: ${value}`);
+  });
+
+};
 
 // ------------------------------------------------------------------------------------------------------------------------------------
 // Update all the plots when a new sample is selected.
 // ------------------------------------------------------------------------------------------------------------------------------------
 
-
+// event listener is added within the init function that updates the visuals based on the dropdown menu changing
 
 // ------------------------------------------------------------------------------------------------------------------------------------
 // Deploy your app to a free static page hosting service, such as GitHub Pages.
 // ------------------------------------------------------------------------------------------------------------------------------------
 
+// deployed using GitHub Pages at ---> https://bsvab.github.io/belly-button-challenge/
 
-
-// ------------------------------------------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------------------------------------------
 // ADVANCED CHALLENGE ASSIGNMENT (OPTIONAL)
-// ------------------------------------------------------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------------------------------------------------------------
 // Adapt the Gauge Chart from https://plot.ly/javascript/gauge-charts/ to plot the weekly washing frequency of the individual.
 // You will need to modify the example gauge code to account for values ranging from 0 through 9.
 // Update the chart whenever a new sample is selected.
 // ------------------------------------------------------------------------------------------------------------------------------------
 
+function generateGaugeChart(selection, metadata) {
+
+  // filter data per dropdown selection
+  let selection_data = metadata.filter(result => result.id == selection);
+  console.log(selection_data);
+
+  let trace = [{
+    domain: {x: [0, 1], y: [0, 1]},
+    value: selection_data[0].wfreq,
+    title: {text: "Belly Button Washing Frequency<br>Scrubs per Week"},
+    type: "indicator",
+    mode: "gauge+number",
+    gauge: {
+      axis: {range: [null, 9], tickwidth: 1, tickcolor: "darkblue"},
+      bar: {color: "red"},
+      bgcolor: "white",
+      steps: [
+        {range: [0, 1], color: 'rgba(248, 243, 236, 1)'},
+        {range: [1, 2], color: 'rgba(244, 241, 229, 1)'},
+        {range: [2, 3], color: 'rgba(233, 230, 202, 1)'},
+        {range: [3, 4], color: 'rgba(229, 231, 179, 1)'},
+        {range: [4, 5], color: 'rgba(213, 228, 157, 1)'},
+        {range: [5, 6], color: 'rgba(183, 204, 146, 1)'},
+        {range: [6, 7], color: 'rgba(140, 191, 136, 1)'},
+        {range: [7, 8], color: 'rgba(138, 187, 143, 1)'},
+        {range: [8, 9], color: 'rgba(133, 180, 138, 1)'}
+      ]
+    }
+  }];
+  
+  let layout = { 
+    width: 600, 
+    height: 500, 
+    margin: { t: 0, b: 0 } 
+  };
+
+  Plotly.newPlot("gauge", trace, layout);
+
+};
 
