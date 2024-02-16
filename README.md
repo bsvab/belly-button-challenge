@@ -9,7 +9,7 @@ The dataset reveals that a small handful of microbial species (also called opera
 
 ## <p style="color:#CC6600">Dashboard Deliverable</p> 
 
-<ins>Screenshot of Interactive Dashboard</ins>:<img src="Images/uta_icon_checkmark.svg" width="30" height="12">  <br>
+<ins>Screenshot of Interactive Dashboard</ins>:<img src="images/uta_icon_checkmark.svg" width="30" height="12">  <br>
 ![Dashboard](images/dashboard.png)
 <br>
 
